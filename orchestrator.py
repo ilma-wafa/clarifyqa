@@ -1,12 +1,15 @@
 from agents.analyzer import analyze_requirement
 from agents.strategist import generate_strategy
 from agents.generator import generate_output
+from agents.scorer import score_requirement
 
 def run_clarifyqa(requirement: str) -> dict:
     """
-    Orchestrates all three agents in sequence.
-    Takes a requirement and returns the full ClarifyQA analysis.
+    Orchestrates all agents in sequence.
     """
+    print("📊 Scorer Agent running...")
+    score = score_requirement(requirement)
+
     print("🔍 Analyzer Agent running...")
     analysis = analyze_requirement(requirement)
 
@@ -18,6 +21,7 @@ def run_clarifyqa(requirement: str) -> dict:
 
     return {
         "requirement": requirement,
+        "score": score,
         "analysis": analysis,
         "strategy": strategy,
         "output": output

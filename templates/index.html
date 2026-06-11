@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClarifyQA</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; }
+        header { background: #1a1d2e; padding: 20px 40px; border-bottom: 2px solid #00bcd4; }
+        header h1 { color: #00bcd4; font-size: 1.8rem; }
+        header p { color: #888; font-size: 0.9rem; margin-top: 4px; }
+        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        textarea { width: 100%; height: 140px; background: #1a1d2e; border: 1px solid #333; 
+                   color: #e0e0e0; padding: 16px; border-radius: 8px; font-size: 1rem; 
+                   resize: vertical; outline: none; }
+        textarea:focus { border-color: #00bcd4; }
+        button { margin-top: 12px; padding: 12px 32px; background: #00bcd4; color: #0f1117; 
+                 border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; 
+                 cursor: pointer; }
+        button:hover { background: #0097a7; }
+        button:disabled { background: #444; cursor: not-allowed; }
+        .results { margin-top: 32px; }
+        .card { background: #1a1d2e; border: 1px solid #333; border-radius: 8px; 
+                padding: 24px; margin-bottom: 20px; }
+        .card h2 { color: #00bcd4; margin-bottom: 12px; font-size: 1.1rem; }
+        .card pre { white-space: pre-wrap; font-family: 'Segoe UI', sans-serif; 
+                    line-height: 1.6; color: #ccc; }
+        .loading { text-align: center; color: #00bcd4; margin-top: 24px; display: none; }
+        .error { background: #2a1a1a; border: 1px solid #f44336; border-radius: 8px; 
+                 padding: 16px; color: #f44336; margin-top: 20px; display: none; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🔍 ClarifyQA</h1>
+        <p>AI Reasoning Agent for QA Engineers — Detect requirement gaps before testing begins</p>
+    </header>
+
+    <div class="container">
+        <textarea id="requirement" placeholder="Paste your requirement or user story here...
+
+Example: User should be able to reset password using email."></textarea>
+        <button onclick="analyze()" id="btn">Analyze Requirement</button>
+
+        <div class="loading" id="loading">⚙️ ClarifyQA agents are analyzing your requirement...</div>
+        <div class="error" id="error"></div>
+
+        <div class="results" id="results"></div>
+    </div>
+
+    <script>
+        async function analyze() {
+            const requirement = document.getElementById("requirement").value.trim();
+            if (!requirement) { alert("Please enter a requirement."); return; }
+
+            document.getElementById("btn").disabled = true;
+            document.getElementById("loading").style.display = "block";
+            document.getElementById("results").innerHTML = "";
+            document.getElementById("error").style.display = "none";
+
+            try {
+                const response = await fetch("/analyze", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ requirement })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById("error").textContent = data.error;
+                    document.getElementById("error").style.display = "block";
+                } else {
+                    document.getElementById("results").innerHTML = `
+                        <div class="card">
+                            <h2>📋 Requirement Analysis</h2>
+                            <pre>${data.analysis}</pre>
+                        </div>
+                        <div class="card">
+                            <h2>🧠 Strategy & Risk Plan</h2>
+                            <pre>${data.strategy}</pre>
+                        </div>
+                        <div class="card">
+                            <h2>⚙️ Test Scenarios & Bug Report</h2>
+                            <pre>${data.output}</pre>
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                document.getElementById("error").textContent = "Something went wrong. Please try again.";
+                document.getElementById("error").style.display = "block";
+            } finally {
+                document.getElementById("btn").disabled = false;
+                document.getElementById("loading").style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>

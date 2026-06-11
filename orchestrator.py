@@ -4,26 +4,32 @@ from agents.generator import generate_output
 from agents.scorer import score_requirement
 from agents.ambiguity import detect_ambiguity
 from agents.acceptance import generate_acceptance_criteria
+from agents.improver import improve_requirement
+from concurrent.futures import ThreadPoolExecutor
 
 def run_clarifyqa(requirement: str) -> dict:
     """
-    Orchestrates all agents in sequence.
+    Orchestrates all agents - runs independent agents in parallel.
     """
-    print("📊 Scorer Agent running...")
-    score = score_requirement(requirement)
+    # Run independent agents in parallel
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        future_score = executor.submit(score_requirement, requirement)
+        future_ambiguity = executor.submit(detect_ambiguity, requirement)
+        future_acceptance = executor.submit(generate_acceptance_criteria, requirement)
+        future_improved = executor.submit(improve_requirement, requirement)
+        future_analysis = executor.submit(analyze_requirement, requirement)
 
-    print("🔍 Ambiguity Detector running...")
-    ambiguity = detect_ambiguity(requirement)
+        score = future_score.result()
+        ambiguity = future_ambiguity.result()
+        acceptance = future_acceptance.result()
+        improved = future_improved.result()
+        analysis = future_analysis.result()
 
-    print("✅ Acceptance Criteria Generator running...")
-    acceptance = generate_acceptance_criteria(requirement)
-
-    print("🔍 Analyzer Agent running...")
-    analysis = analyze_requirement(requirement)
-
+    # Strategist needs analysis first
     print("🧠 Strategist Agent running...")
     strategy = generate_strategy(requirement, analysis)
 
+    # Generator needs strategy
     print("⚙️ Generator Agent running...")
     output = generate_output(requirement, strategy)
 
@@ -32,6 +38,7 @@ def run_clarifyqa(requirement: str) -> dict:
         "score": score,
         "ambiguity": ambiguity,
         "acceptance": acceptance,
+        "improved": improved,
         "analysis": analysis,
         "strategy": strategy,
         "output": output

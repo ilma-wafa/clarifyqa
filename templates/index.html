@@ -31,6 +31,7 @@
                  padding: 16px; color: #f44336; margin-top: 20px; display: none; }
         .score-card { border-color: #00bcd4; background: #0d2137; }
         .ambiguity-card { border-color: #ff9800; background: #1a1500; }
+        .acceptance-card { border-color: #4caf50; background: #0d1f0d; }
     </style>
 </head>
 <body>
@@ -81,6 +82,10 @@ Example: User should be able to reset password using email."></textarea>
                         <div class="card ambiguity-card">
                             <h2>⚠️ Ambiguity Detector</h2>
                             <pre>${data.ambiguity}</pre>
+                        </div>
+                        <div class="card acceptance-card">
+                            <h2>✅ Acceptance Criteria</h2>
+                            <pre>${data.acceptance}</pre>
                         </div>
                         <div class="card">
                             <h2>📋 Requirement Analysis</h2>

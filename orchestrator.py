@@ -3,6 +3,7 @@ from agents.strategist import generate_strategy
 from agents.generator import generate_output
 from agents.scorer import score_requirement
 from agents.ambiguity import detect_ambiguity
+from agents.acceptance import generate_acceptance_criteria
 
 def run_clarifyqa(requirement: str) -> dict:
     """
@@ -13,6 +14,9 @@ def run_clarifyqa(requirement: str) -> dict:
 
     print("🔍 Ambiguity Detector running...")
     ambiguity = detect_ambiguity(requirement)
+
+    print("✅ Acceptance Criteria Generator running...")
+    acceptance = generate_acceptance_criteria(requirement)
 
     print("🔍 Analyzer Agent running...")
     analysis = analyze_requirement(requirement)
@@ -27,6 +31,7 @@ def run_clarifyqa(requirement: str) -> dict:
         "requirement": requirement,
         "score": score,
         "ambiguity": ambiguity,
+        "acceptance": acceptance,
         "analysis": analysis,
         "strategy": strategy,
         "output": output

@@ -21,28 +21,28 @@ def review_user_story(requirement: str) -> str:
     
     QA REVIEW — USER STORY READINESS:
     
-    ✅ User Role Clear: Yes / ❌ No
+    [PASS] User Role Clear: Yes / [FAIL] No
     [Brief explanation]
     
-    ✅ Goal Clear: Yes / ❌ No
+    [PASS] User Role Clear: Yes / [FAIL] No
     [Brief explanation]
     
-    ✅ Business Value Clear: Yes / ❌ No
+    [PASS] User Role Clear: Yes / [FAIL] No
     [Brief explanation]
     
-    ✅ Acceptance Criteria Present: Yes / ❌ No
+    [PASS] User Role Clear: Yes / [FAIL] No
     [Brief explanation]
     
-    ✅ Validation Rules Defined: Yes / ❌ No
+    [PASS] User Role Clear: Yes / [FAIL] No
     [Brief explanation]
     
-    ✅ Edge Cases Mentioned: Yes / ❌ No
+    [PASS] User Role Clear: Yes / [FAIL] No
     [Brief explanation]
     
-    ✅ Dependencies Listed: Yes / ❌ No
+    [PASS] User Role Clear: Yes / [FAIL] No
     [Brief explanation]
     
-    ✅ Story Testable: Yes / ❌ No
+    [PASS] User Role Clear: Yes / [FAIL] No
     [Brief explanation]
     
     READINESS SCORE: [number] / 8 criteria met

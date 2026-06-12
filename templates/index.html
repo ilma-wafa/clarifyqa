@@ -10,7 +10,14 @@
         header { background: #1a1d2e; padding: 20px 40px; border-bottom: 2px solid #00bcd4; }
         header h1 { color: #00bcd4; font-size: 1.8rem; }
         header p { color: #888; font-size: 0.9rem; margin-top: 4px; }
-        .container { max-width: 860px; width: 100%; margin: 40px auto; padding: 0 20px; }
+        .main-layout { display: flex; max-width: 1200px; margin: 0 auto; padding: 40px 20px; gap: 24px; }
+        .sidebar { width: 200px; flex-shrink: 0; position: sticky; top: 20px; height: fit-content; background: #1a1d2e; border-radius: 8px; padding: 16px; display: none; }
+        .sidebar h3 { color: #00bcd4; font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 12px; text-transform: uppercase; }
+        .sidebar a { display: block; padding: 6px 8px; color: #888; font-size: 0.82rem; text-decoration: none; border-radius: 4px; margin-bottom: 2px; border-left: 2px solid transparent; transition: all 0.2s; }
+        .sidebar a:hover { color: #e0e0e0; background: #0f1117; }
+        .sidebar a.active { color: #00bcd4; border-left-color: #00bcd4; background: #0d2137; }
+        .content { flex: 1; min-width: 0; }
+        .input-area { margin-bottom: 24px; }
         textarea { width: 100%; height: 140px; background: #1a1d2e; border: 1px solid #333; 
                    color: #e0e0e0; padding: 16px; border-radius: 8px; font-size: 1rem; 
                    resize: vertical; outline: none; }
@@ -23,12 +30,12 @@
         button:disabled { background: #444; cursor: not-allowed; }
         #export-btn { background: #4caf50; display: none; }
         #export-btn:hover { background: #388e3c; }
-        .results { margin-top: 32px; }
+        .results { margin-top: 8px; }
         .card { background: #1a1d2e; border: 1px solid #333; border-radius: 8px; 
-                padding: 24px; margin-bottom: 20px; }
+                padding: 24px; margin-bottom: 20px; scroll-margin-top: 20px; }
         .card h2 { color: #00bcd4; margin-bottom: 12px; font-size: 1.1rem; }
         .card pre { white-space: pre-wrap; font-family: 'Segoe UI', sans-serif; 
-                    line-height: 1.6; color: #ccc; }
+                    line-height: 1.8; color: #ccc; word-break: break-word; font-size: 0.95rem; }
         .loading { text-align: center; color: #00bcd4; margin-top: 24px; display: none; }
         .error { background: #2a1a1a; border: 1px solid #f44336; border-radius: 8px; 
                  padding: 16px; color: #f44336; margin-top: 20px; display: none; }
@@ -40,7 +47,7 @@
         .severity-card { border-color: #f44336; background: #1f0d0d; }
         .jira-card { border-color: #2196f3; background: #0d1520; }
         .regression-card { border-color: #ff5722; background: #1f0f0a; }
-        .qa-review-card { border-color: #00bcd4; background: #0d1f1f; }
+        .qa-review-card { border-color: #00e5ff; background: #0d1f1f; }
     </style>
 </head>
 <body>
@@ -49,22 +56,49 @@
         <p>AI Reasoning Agent for QA Engineers — Detect requirement gaps before testing begins</p>
     </header>
 
-    <div class="container">
-        <textarea id="requirement" placeholder="Paste your requirement or user story here...
-
-Example: User should be able to reset password using email."></textarea>
-        <div class="btn-row">
-            <button onclick="analyze()" id="btn">Analyze Requirement</button>
-            <button onclick="exportReport()" id="export-btn">⬇️ Export as PDF</button>
+    <div class="main-layout">
+        <div class="sidebar" id="sidebar">
+            <h3>Sections</h3>
+            <a href="#score">📊 Score</a>
+            <a href="#qa-review">🔎 QA Review</a>
+            <a href="#ambiguity">⚠️ Ambiguity</a>
+            <a href="#improved">✏️ Improvement</a>
+            <a href="#acceptance">✅ Acceptance</a>
+            <a href="#coverage">🧪 Coverage</a>
+            <a href="#severity">🐛 Severity</a>
+            <a href="#jira">📋 Jira Report</a>
+            <a href="#regression">🔄 Regression</a>
+            <a href="#analysis">📋 Analysis</a>
+            <a href="#strategy">🧠 Strategy</a>
+            <a href="#scenarios">⚙️ Scenarios</a>
         </div>
 
-        <div class="loading" id="loading">⚙️ ClarifyQA agents are analyzing your requirement...</div>
-        <div class="error" id="error"></div>
-        <div class="results" id="results"></div>
+        <div class="content">
+            <div class="input-area">
+                <textarea id="requirement" placeholder="Paste your requirement or user story here...
+
+Example: User should be able to reset password using email."></textarea>
+                <div class="btn-row">
+                    <button onclick="analyze()" id="btn">Analyze Requirement</button>
+                    <button onclick="exportReport()" id="export-btn">⬇️ Export as PDF</button>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">⚙️ ClarifyQA agents are analyzing your requirement...</div>
+            <div class="error" id="error"></div>
+            <div class="results" id="results"></div>
+        </div>
     </div>
 
     <script>
         let lastResult = null;
+
+        document.getElementById("requirement").addEventListener("keydown", function(e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                analyze();
+            }
+        });
 
         async function analyze() {
             const requirement = document.getElementById("requirement").value.trim();
@@ -75,6 +109,7 @@ Example: User should be able to reset password using email."></textarea>
             document.getElementById("loading").style.display = "block";
             document.getElementById("results").innerHTML = "";
             document.getElementById("error").style.display = "none";
+            document.getElementById("sidebar").style.display = "none";
 
             try {
                 const response = await fetch("/analyze", {
@@ -91,56 +126,59 @@ Example: User should be able to reset password using email."></textarea>
                 } else {
                     lastResult = data;
                     document.getElementById("export-btn").style.display = "block";
+                    document.getElementById("sidebar").style.display = "block";
                     document.getElementById("results").innerHTML = `
-                        <div class="card score-card">
+                        <div class="card score-card" id="score">
                             <h2>📊 Requirement Readiness Score</h2>
                             <pre>${data.score}</pre>
                         </div>
-                        <div class="card qa-review-card">
+                        <div class="card qa-review-card" id="qa-review">
                             <h2>🔎 QA Review — User Story Readiness</h2>
                             <pre>${data.qa_review}</pre>
                         </div>
-                        <div class="card ambiguity-card">
+                        <div class="card ambiguity-card" id="ambiguity">
                             <h2>⚠️ Ambiguity Detector</h2>
                             <pre>${data.ambiguity}</pre>
                         </div>
-                        <div class="card improved-card">
+                        <div class="card improved-card" id="improved">
                             <h2>✏️ Before vs After Improvement</h2>
                             <pre>${data.improved}</pre>
                         </div>
-                        <div class="card acceptance-card">
+                        <div class="card acceptance-card" id="acceptance">
                             <h2>✅ Acceptance Criteria</h2>
                             <pre>${data.acceptance}</pre>
                         </div>
-                        <div class="card coverage-card">
+                        <div class="card coverage-card" id="coverage">
                             <h2>🧪 Test Coverage Checklist</h2>
                             <pre>${data.coverage}</pre>
                         </div>
-                        <div class="card severity-card">
+                        <div class="card severity-card" id="severity">
                             <h2>🐛 Bug Severity & Priority</h2>
                             <pre>${data.severity}</pre>
                         </div>
-                        <div class="card jira-card">
+                        <div class="card jira-card" id="jira">
                             <h2>📋 Jira Bug Report</h2>
                             <pre>${data.jira}</pre>
                         </div>
-                        <div class="card regression-card">
+                        <div class="card regression-card" id="regression">
                             <h2>🔄 Regression Impact Analysis</h2>
                             <pre>${data.regression}</pre>
                         </div>
-                        <div class="card">
+                        <div class="card" id="analysis">
                             <h2>📋 Requirement Analysis</h2>
                             <pre>${data.analysis}</pre>
                         </div>
-                        <div class="card">
+                        <div class="card" id="strategy">
                             <h2>🧠 Strategy & Risk Plan</h2>
                             <pre>${data.strategy}</pre>
                         </div>
-                        <div class="card">
+                        <div class="card" id="scenarios">
                             <h2>⚙️ Test Scenarios & Bug Report</h2>
                             <pre>${data.output}</pre>
                         </div>
                     `;
+
+                    updateActiveSidebarLink();
                 }
             } catch (err) {
                 document.getElementById("error").textContent = "Something went wrong. Please try again.";
@@ -149,6 +187,23 @@ Example: User should be able to reset password using email."></textarea>
                 document.getElementById("btn").disabled = false;
                 document.getElementById("loading").style.display = "none";
             }
+        }
+
+        function updateActiveSidebarLink() {
+            const links = document.querySelectorAll(".sidebar a");
+            window.addEventListener("scroll", () => {
+                let current = "";
+                document.querySelectorAll(".card").forEach(card => {
+                    const top = card.getBoundingClientRect().top;
+                    if (top < 200) current = card.id;
+                });
+                links.forEach(link => {
+                    link.classList.remove("active");
+                    if (link.getAttribute("href") === "#" + current) {
+                        link.classList.add("active");
+                    }
+                });
+            });
         }
 
         async function exportReport() {

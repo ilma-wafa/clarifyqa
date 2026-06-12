@@ -13,7 +13,7 @@ from agents.qa_review import review_user_story
 from concurrent.futures import ThreadPoolExecutor
 
 def run_clarifyqa(requirement: str) -> dict:
-    with ThreadPoolExecutor(max_workers=9) as executor:
+    with ThreadPoolExecutor(max_workers=4) as executor:
         future_score = executor.submit(score_requirement, requirement)
         future_ambiguity = executor.submit(detect_ambiguity, requirement)
         future_acceptance = executor.submit(generate_acceptance_criteria, requirement)

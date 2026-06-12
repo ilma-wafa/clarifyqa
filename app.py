@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response
 from orchestrator import run_clarifyqa
+from agents.exporter import export_to_pdf
 
 app = Flask(__name__)
 
@@ -18,6 +19,19 @@ def analyze():
     try:
         result = run_clarifyqa(requirement)
         return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/export", methods=["POST"])
+def export():
+    data = request.get_json()
+    try:
+        pdf = export_to_pdf(data)
+        return Response(
+            pdf,
+            mimetype="application/pdf",
+            headers={"Content-Disposition": "attachment; filename=clarifyqa-report.pdf"}
+        )
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

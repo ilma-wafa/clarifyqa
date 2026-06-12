@@ -15,11 +15,14 @@
                    color: #e0e0e0; padding: 16px; border-radius: 8px; font-size: 1rem; 
                    resize: vertical; outline: none; }
         textarea:focus { border-color: #00bcd4; }
-        button { margin-top: 12px; padding: 12px 32px; background: #00bcd4; color: #0f1117; 
+        .btn-row { display: flex; gap: 12px; margin-top: 12px; }
+        button { padding: 12px 32px; background: #00bcd4; color: #0f1117; 
                  border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; 
                  cursor: pointer; }
         button:hover { background: #0097a7; }
         button:disabled { background: #444; cursor: not-allowed; }
+        #export-btn { background: #4caf50; display: none; }
+        #export-btn:hover { background: #388e3c; }
         .results { margin-top: 32px; }
         .card { background: #1a1d2e; border: 1px solid #333; border-radius: 8px; 
                 padding: 24px; margin-bottom: 20px; }
@@ -50,7 +53,10 @@
         <textarea id="requirement" placeholder="Paste your requirement or user story here...
 
 Example: User should be able to reset password using email."></textarea>
-        <button onclick="analyze()" id="btn">Analyze Requirement</button>
+        <div class="btn-row">
+            <button onclick="analyze()" id="btn">Analyze Requirement</button>
+            <button onclick="exportReport()" id="export-btn">⬇️ Export as PDF</button>
+        </div>
 
         <div class="loading" id="loading">⚙️ ClarifyQA agents are analyzing your requirement...</div>
         <div class="error" id="error"></div>
@@ -58,11 +64,14 @@ Example: User should be able to reset password using email."></textarea>
     </div>
 
     <script>
+        let lastResult = null;
+
         async function analyze() {
             const requirement = document.getElementById("requirement").value.trim();
             if (!requirement) { alert("Please enter a requirement."); return; }
 
             document.getElementById("btn").disabled = true;
+            document.getElementById("export-btn").style.display = "none";
             document.getElementById("loading").style.display = "block";
             document.getElementById("results").innerHTML = "";
             document.getElementById("error").style.display = "none";
@@ -80,6 +89,8 @@ Example: User should be able to reset password using email."></textarea>
                     document.getElementById("error").textContent = data.error;
                     document.getElementById("error").style.display = "block";
                 } else {
+                    lastResult = data;
+                    document.getElementById("export-btn").style.display = "block";
                     document.getElementById("results").innerHTML = `
                         <div class="card score-card">
                             <h2>📊 Requirement Readiness Score</h2>
@@ -138,6 +149,22 @@ Example: User should be able to reset password using email."></textarea>
                 document.getElementById("btn").disabled = false;
                 document.getElementById("loading").style.display = "none";
             }
+        }
+
+        async function exportReport() {
+            if (!lastResult) return;
+            const response = await fetch("/export", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(lastResult)
+            });
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "clarifyqa-report.pdf";
+            a.click();
+            window.URL.revokeObjectURL(url);
         }
     </script>
 </body>

@@ -37,6 +37,7 @@
         .severity-card { border-color: #f44336; background: #1f0d0d; }
         .jira-card { border-color: #2196f3; background: #0d1520; }
         .regression-card { border-color: #ff5722; background: #1f0f0a; }
+        .qa-review-card { border-color: #00bcd4; background: #0d1f1f; }
     </style>
 </head>
 <body>
@@ -83,6 +84,10 @@ Example: User should be able to reset password using email."></textarea>
                         <div class="card score-card">
                             <h2>📊 Requirement Readiness Score</h2>
                             <pre>${data.score}</pre>
+                        </div>
+                        <div class="card qa-review-card">
+                            <h2>🔎 QA Review — User Story Readiness</h2>
+                            <pre>${data.qa_review}</pre>
                         </div>
                         <div class="card ambiguity-card">
                             <h2>⚠️ Ambiguity Detector</h2>

@@ -9,10 +9,11 @@ from agents.coverage import check_test_coverage
 from agents.severity import suggest_severity
 from agents.jira import generate_jira_report
 from agents.regression import analyze_regression_impact
+from agents.qa_review import review_user_story
 from concurrent.futures import ThreadPoolExecutor
 
 def run_clarifyqa(requirement: str) -> dict:
-    with ThreadPoolExecutor(max_workers=8) as executor:
+    with ThreadPoolExecutor(max_workers=9) as executor:
         future_score = executor.submit(score_requirement, requirement)
         future_ambiguity = executor.submit(detect_ambiguity, requirement)
         future_acceptance = executor.submit(generate_acceptance_criteria, requirement)
@@ -22,6 +23,7 @@ def run_clarifyqa(requirement: str) -> dict:
         future_severity = executor.submit(suggest_severity, requirement)
         future_jira = executor.submit(generate_jira_report, requirement)
         future_regression = executor.submit(analyze_regression_impact, requirement)
+        future_qa_review = executor.submit(review_user_story, requirement)
 
         score = future_score.result()
         ambiguity = future_ambiguity.result()
@@ -32,6 +34,7 @@ def run_clarifyqa(requirement: str) -> dict:
         severity = future_severity.result()
         jira = future_jira.result()
         regression = future_regression.result()
+        qa_review = future_qa_review.result()
 
     print("🧠 Strategist Agent running...")
     strategy = generate_strategy(requirement, analysis)
@@ -50,6 +53,7 @@ def run_clarifyqa(requirement: str) -> dict:
         "severity": severity,
         "jira": jira,
         "regression": regression,
+        "qa_review": qa_review,
         "strategy": strategy,
         "output": output
     }

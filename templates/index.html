@@ -36,6 +36,7 @@
         .coverage-card { border-color: #e91e63; background: #1f0d14; }
         .severity-card { border-color: #f44336; background: #1f0d0d; }
         .jira-card { border-color: #2196f3; background: #0d1520; }
+        .regression-card { border-color: #ff5722; background: #1f0f0a; }
     </style>
 </head>
 <body>
@@ -106,6 +107,10 @@ Example: User should be able to reset password using email."></textarea>
                         <div class="card jira-card">
                             <h2>📋 Jira Bug Report</h2>
                             <pre>${data.jira}</pre>
+                        </div>
+                        <div class="card regression-card">
+                            <h2>🔄 Regression Impact Analysis</h2>
+                            <pre>${data.regression}</pre>
                         </div>
                         <div class="card">
                             <h2>📋 Requirement Analysis</h2>

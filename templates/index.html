@@ -34,6 +34,7 @@
         .acceptance-card { border-color: #4caf50; background: #0d1f0d; }
         .improved-card { border-color: #9c27b0; background: #1a0d2e; }
         .coverage-card { border-color: #e91e63; background: #1f0d14; }
+        .severity-card { border-color: #f44336; background: #1f0d0d; }
     </style>
 </head>
 <body>
@@ -96,6 +97,10 @@ Example: User should be able to reset password using email."></textarea>
                         <div class="card coverage-card">
                             <h2>🧪 Test Coverage Checklist</h2>
                             <pre>${data.coverage}</pre>
+                        </div>
+                        <div class="card severity-card">
+                            <h2>🐛 Bug Severity & Priority</h2>
+                            <pre>${data.severity}</pre>
                         </div>
                         <div class="card">
                             <h2>📋 Requirement Analysis</h2>

@@ -35,6 +35,7 @@
         .improved-card { border-color: #9c27b0; background: #1a0d2e; }
         .coverage-card { border-color: #e91e63; background: #1f0d14; }
         .severity-card { border-color: #f44336; background: #1f0d0d; }
+        .jira-card { border-color: #2196f3; background: #0d1520; }
     </style>
 </head>
 <body>
@@ -101,6 +102,10 @@ Example: User should be able to reset password using email."></textarea>
                         <div class="card severity-card">
                             <h2>🐛 Bug Severity & Priority</h2>
                             <pre>${data.severity}</pre>
+                        </div>
+                        <div class="card jira-card">
+                            <h2>📋 Jira Bug Report</h2>
+                            <pre>${data.jira}</pre>
                         </div>
                         <div class="card">
                             <h2>📋 Requirement Analysis</h2>

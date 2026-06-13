@@ -4,223 +4,691 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ClarifyQA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/tabler-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e0e0e0; }
-        header { background: #1a1d2e; padding: 20px 40px; border-bottom: 2px solid #00bcd4; }
-        header h1 { color: #00bcd4; font-size: 1.8rem; }
-        header p { color: #888; font-size: 0.9rem; margin-top: 4px; }
-        .main-layout { display: flex; max-width: 1200px; margin: 0 auto; padding: 40px 20px; gap: 24px; }
-        .sidebar { width: 200px; flex-shrink: 0; position: sticky; top: 20px; height: fit-content; background: #1a1d2e; border-radius: 8px; padding: 16px; display: none; }
-        .sidebar h3 { color: #00bcd4; font-size: 0.75rem; letter-spacing: 1px; margin-bottom: 12px; text-transform: uppercase; }
-        .sidebar a { display: block; padding: 6px 8px; color: #888; font-size: 0.82rem; text-decoration: none; border-radius: 4px; margin-bottom: 2px; border-left: 2px solid transparent; transition: all 0.2s; }
-        .sidebar a:hover { color: #e0e0e0; background: #0f1117; }
-        .sidebar a.active { color: #00bcd4; border-left-color: #00bcd4; background: #0d2137; }
-        .content { flex: 1; min-width: 0; }
-        .input-area { margin-bottom: 24px; }
-        textarea { width: 100%; height: 140px; background: #1a1d2e; border: 1px solid #333; 
-                   color: #e0e0e0; padding: 16px; border-radius: 8px; font-size: 1rem; 
-                   resize: vertical; outline: none; }
-        textarea:focus { border-color: #00bcd4; }
-        .btn-row { display: flex; gap: 12px; margin-top: 12px; }
-        button { padding: 12px 32px; background: #00bcd4; color: #0f1117; 
-                 border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; 
-                 cursor: pointer; }
-        button:hover { background: #0097a7; }
-        button:disabled { background: #444; cursor: not-allowed; }
-        #export-btn { background: #4caf50; display: none; }
-        #export-btn:hover { background: #388e3c; }
-        .results { margin-top: 8px; }
-        .card { background: #1a1d2e; border: 1px solid #333; border-radius: 8px; 
-                padding: 24px; margin-bottom: 20px; scroll-margin-top: 20px; }
-        .card h2 { color: #00bcd4; margin-bottom: 12px; font-size: 1.1rem; }
-        .card pre { white-space: pre-wrap; font-family: 'Segoe UI', sans-serif; 
-                    line-height: 1.8; color: #ccc; word-break: break-word; font-size: 0.95rem; }
-        .loading { text-align: center; color: #00bcd4; margin-top: 24px; display: none; }
-        .error { background: #2a1a1a; border: 1px solid #f44336; border-radius: 8px; 
-                 padding: 16px; color: #f44336; margin-top: 20px; display: none; }
-        .score-card { border-color: #00bcd4; background: #0d2137; }
-        .ambiguity-card { border-color: #ff9800; background: #1a1500; }
-        .acceptance-card { border-color: #4caf50; background: #0d1f0d; }
-        .improved-card { border-color: #9c27b0; background: #1a0d2e; }
-        .coverage-card { border-color: #e91e63; background: #1f0d14; }
-        .severity-card { border-color: #f44336; background: #1f0d0d; }
-        .jira-card { border-color: #2196f3; background: #0d1520; }
-        .regression-card { border-color: #ff5722; background: #1f0f0a; }
-        .qa-review-card { border-color: #00e5ff; background: #0d1f1f; }
+        :root {
+            --bg: #0a0f1a;
+            --bg2: #0d1424;
+            --bg3: #111928;
+            --sidebar: #080d16;
+            --accent: #b388ff;
+            --accent2: #9c5fe0;
+            --accent-glow: rgba(179,136,255,0.12);
+            --text: #e2e8f0;
+            --text2: #7a8fa6;
+            --border: rgba(179,136,255,0.15);
+            --border2: rgba(255,255,255,0.06);
+            --card-radius: 14px;
+            --green: #4caf50;
+            --red: #f44336;
+            --orange: #ff9800;
+            --blue: #2196f3;
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; }
+
+        nav { display: flex; align-items: center; padding: 0 24px; height: 60px; background: var(--bg2); border-bottom: 1px solid var(--border); gap: 16px; position: sticky; top: 0; z-index: 100; }
+        .nav-logo { display: flex; align-items: center; gap: 10px; }
+        .nav-logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #b388ff, #4a0080); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+        .nav-logo h1 { font-size: 1.2rem; font-weight: 700; color: var(--text); font-family: 'Space Mono', monospace; }
+        .nav-logo h1 span { color: var(--accent); }
+        .nav-tagline { color: var(--text2); font-size: 0.78rem; margin-left: 8px; border-left: 1px solid var(--border2); padding-left: 16px; font-family: 'Space Mono', monospace; }
+        .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+        .nav-badge { background: var(--accent-glow); border: 1px solid var(--border); padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; color: var(--accent); font-family: 'Space Mono', monospace; font-weight: 700; }
+        .avatar { width: 34px; height: 34px; border-radius: 8px; background: linear-gradient(135deg, #b388ff, #4a0080); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #fff; font-family: 'Space Mono', monospace; }
+
+        .layout { display: flex; flex: 1; }
+
+        .sidebar { width: 220px; background: var(--sidebar); border-right: 1px solid var(--border); padding: 20px 10px; display: flex; flex-direction: column; gap: 2px; position: sticky; top: 60px; height: calc(100vh - 60px); overflow-y: auto; }
+        .sidebar-label { font-size: 0.68rem; font-weight: 700; color: var(--accent); letter-spacing: 2px; text-transform: uppercase; padding: 0 10px; margin-bottom: 10px; font-family: 'Space Mono', monospace; }
+        .sidebar a { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; color: var(--text2); font-size: 0.84rem; text-decoration: none; transition: all 0.2s; }
+        .sidebar a i { font-size: 17px; width: 20px; }
+        .sidebar a:hover { background: var(--accent-glow); color: var(--text); }
+        .sidebar a.active { background: var(--accent-glow); color: var(--accent); border: 1px solid var(--border); }
+        .sidebar-footer { margin-top: auto; padding: 12px 10px; border-top: 1px solid var(--border2); }
+        .sidebar-brand { font-family: 'Space Mono', monospace; font-size: 0.78rem; color: var(--accent); font-weight: 700; margin-bottom: 4px; }
+        .sidebar-footer p { font-size: 0.72rem; color: var(--text2); line-height: 1.5; font-family: 'Space Mono', monospace; }
+        .sidebar-footer strong { color: var(--accent); }
+
+        .main { flex: 1; padding: 28px 32px; max-width: 960px; }
+
+        .input-label { display: flex; align-items: center; gap: 8px; color: var(--text2); font-size: 0.84rem; margin-bottom: 10px; font-family: 'Space Mono', monospace; }
+        .input-label i { color: var(--accent); }
+        textarea { width: 100%; height: 120px; background: var(--bg2); border: 1px solid var(--border2); color: var(--text); padding: 16px; border-radius: 10px; font-size: 0.92rem; resize: vertical; outline: none; font-family: 'Space Mono', monospace; transition: border 0.2s; }
+        textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+        .btn-row { display: flex; gap: 12px; margin-top: 14px; }
+        .btn-primary { flex: 1; padding: 12px 24px; background: linear-gradient(135deg, #b388ff, #4a0080); color: #fff; border: none; border-radius: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Space Mono', monospace; transition: opacity 0.2s; }
+        .btn-primary:hover { opacity: 0.88; }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn-export { padding: 12px 24px; background: transparent; color: var(--accent); border: 1px solid var(--accent); border-radius: 10px; font-size: 0.9rem; font-weight: 700; cursor: pointer; display: none; align-items: center; gap: 8px; font-family: 'Space Mono', monospace; transition: all 0.2s; }
+        .btn-export:hover { background: var(--accent-glow); }
+        .btn-export.visible { display: flex; }
+
+        .loading { display: none; align-items: center; gap: 12px; padding: 20px 0; color: var(--accent); font-size: 0.84rem; font-family: 'Space Mono', monospace; }
+        .loading.visible { display: flex; }
+        .dots span { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin: 0 2px; animation: dot 1.2s infinite; }
+        .dots span:nth-child(2) { animation-delay: 0.2s; }
+        .dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes dot { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
+
+        .error { display: none; background: rgba(244,67,54,0.08); border: 1px solid rgba(244,67,54,0.25); border-radius: 10px; padding: 14px 18px; color: #f44336; font-size: 0.88rem; margin-top: 16px; }
+        .error.visible { display: block; }
+
+        .results { margin-top: 24px; display: flex; flex-direction: column; gap: 14px; }
+
+        /* BASE CARD */
+        .card { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--card-radius); padding: 22px 24px; scroll-margin-top: 24px; }
+        .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+        .card-title { display: flex; align-items: center; gap: 10px; font-size: 0.95rem; font-weight: 600; font-family: 'Space Mono', monospace; }
+        .card-title i { font-size: 18px; }
+        .badge { padding: 3px 10px; border-radius: 20px; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; font-family: 'Space Mono', monospace; }
+
+        /* SCORE CARD */
+        .card-score { border-top: 2px solid var(--accent); }
+        .score-ring-wrap { display: flex; gap: 28px; align-items: flex-start; flex-wrap: wrap; }
+        .score-details { flex: 1; min-width: 200px; }
+        .score-number-big { font-size: 1.8rem; font-weight: 700; color: var(--accent); font-family: 'Space Mono', monospace; }
+        .score-verdict { color: var(--text2); font-size: 0.84rem; margin-top: 4px; margin-bottom: 16px; }
+        .deduction-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border2); }
+        .deduction-item:last-child { border-bottom: none; }
+        .deduction-icon { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+        .deduction-icon.critical { background: rgba(244,67,54,0.12); color: #f44336; }
+        .deduction-icon.warning { background: rgba(255,152,0,0.12); color: #ff9800; }
+        .deduction-text { flex: 1; }
+        .deduction-text strong { font-size: 0.84rem; color: var(--text); display: block; }
+        .deduction-text span { font-size: 0.78rem; color: var(--text2); }
+        .deduction-points { color: #f44336; font-weight: 700; font-size: 0.88rem; flex-shrink: 0; font-family: 'Space Mono', monospace; }
+        .tip-bar { display: flex; align-items: center; gap: 10px; background: var(--accent-glow); border: 1px solid var(--border); border-radius: 8px; padding: 11px 14px; margin-top: 16px; font-size: 0.82rem; color: var(--text2); }
+        .tip-bar i { color: var(--accent); flex-shrink: 0; }
+        .ring-svg { transform: rotate(-90deg); }
+        .ring-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 8; }
+        .ring-fill { fill: none; stroke-width: 8; stroke-linecap: round; }
+
+        /* QA REVIEW CARD */
+        .card-qa { border-top: 2px solid #00e5ff; }
+        .qa-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border2); }
+        .qa-item:last-child { border-bottom: none; }
+        .qa-status { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .qa-status.pass { background: rgba(76,175,80,0.12); color: var(--green); }
+        .qa-status.fail { background: rgba(244,67,54,0.12); color: var(--red); }
+        .qa-text { flex: 1; }
+        .qa-text strong { font-size: 0.84rem; color: var(--text); display: block; margin-bottom: 2px; }
+        .qa-text span { font-size: 0.78rem; color: var(--text2); }
+        .verdict-bar { display: flex; align-items: center; gap: 10px; border-radius: 8px; padding: 12px 16px; margin-top: 16px; font-size: 0.84rem; font-weight: 600; font-family: 'Space Mono', monospace; }
+        .verdict-bar.not-ready { background: rgba(244,67,54,0.08); border: 1px solid rgba(244,67,54,0.25); color: #f44336; }
+        .verdict-bar.needs-refinement { background: rgba(255,152,0,0.08); border: 1px solid rgba(255,152,0,0.25); color: #ff9800; }
+        .verdict-bar.ready { background: rgba(76,175,80,0.08); border: 1px solid rgba(76,175,80,0.25); color: var(--green); }
+        .rec-list { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+        .rec-item { display: flex; align-items: flex-start; gap: 8px; font-size: 0.82rem; color: var(--text2); padding: 6px 0; }
+        .rec-item i { color: var(--accent); flex-shrink: 0; margin-top: 1px; }
+
+        /* AMBIGUITY CARD */
+        .card-ambiguity { border-top: 2px solid #ff9800; }
+        .ambiguity-item { background: rgba(255,152,0,0.04); border: 1px solid rgba(255,152,0,0.15); border-radius: 8px; padding: 14px; margin-bottom: 10px; }
+        .ambiguity-word { font-family: 'Space Mono', monospace; font-size: 0.88rem; color: #ff9800; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .ambiguity-row { display: flex; gap: 8px; margin-bottom: 6px; font-size: 0.8rem; }
+        .ambiguity-label { color: var(--text2); min-width: 80px; flex-shrink: 0; font-weight: 600; }
+        .ambiguity-val { color: var(--text); }
+        .ambiguity-replace { color: var(--green); }
+
+        /* IMPROVED CARD */
+        .card-improved { border-top: 2px solid #9c27b0; }
+        .before-after-wrap { display: flex; flex-direction: column; gap: 12px; }
+        .before-box { background: rgba(244,67,54,0.05); border: 1px solid rgba(244,67,54,0.2); border-radius: 8px; padding: 14px; }
+        .after-box { background: rgba(76,175,80,0.05); border: 1px solid rgba(76,175,80,0.2); border-radius: 8px; padding: 14px; }
+        .box-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 8px; font-family: 'Space Mono', monospace; }
+        .box-label.before { color: #f44336; }
+        .box-label.after { color: var(--green); }
+        .box-content { font-size: 0.84rem; color: var(--text2); line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+        .issues-list { margin-top: 12px; display: flex; flex-direction: column; gap: 4px; }
+        .issue-item { display: flex; align-items: flex-start; gap: 8px; font-size: 0.8rem; color: var(--text2); }
+        .issue-item i { color: #f44336; flex-shrink: 0; margin-top: 2px; }
+        .improvements-list { margin-top: 12px; display: flex; flex-direction: column; gap: 4px; }
+        .improvement-item { display: flex; align-items: flex-start; gap: 8px; font-size: 0.8rem; color: var(--text2); }
+        .improvement-item i { color: var(--green); flex-shrink: 0; margin-top: 2px; }
+
+        /* ACCEPTANCE CARD */
+        .card-acceptance { border-top: 2px solid #4caf50; }
+        .ac-item { border: 1px solid var(--border2); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
+        .ac-id { font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--accent); font-weight: 700; margin-bottom: 6px; }
+        .ac-title { font-size: 0.86rem; font-weight: 600; color: var(--text); margin-bottom: 8px; }
+        .gwt-row { display: flex; gap: 8px; margin-bottom: 4px; font-size: 0.8rem; }
+        .gwt-label { font-family: 'Space Mono', monospace; font-size: 0.7rem; font-weight: 700; min-width: 50px; flex-shrink: 0; padding-top: 1px; }
+        .gwt-label.given { color: var(--blue); }
+        .gwt-label.when { color: var(--orange); }
+        .gwt-label.then { color: var(--green); }
+        .gwt-val { color: var(--text2); line-height: 1.5; }
+
+        /* COVERAGE CARD */
+        .card-coverage { border-top: 2px solid #e91e63; }
+        .coverage-item { display: flex; align-items: flex-start; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border2); }
+        .coverage-item:last-child { border-bottom: none; }
+        .coverage-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+        .coverage-icon.covered { background: rgba(76,175,80,0.12); color: var(--green); }
+        .coverage-icon.partial { background: rgba(255,152,0,0.12); color: var(--orange); }
+        .coverage-icon.missing { background: rgba(244,67,54,0.12); color: var(--red); }
+        .coverage-text { flex: 1; }
+        .coverage-text strong { font-size: 0.84rem; color: var(--text); display: block; margin-bottom: 2px; }
+        .coverage-text span { font-size: 0.78rem; color: var(--text2); }
+        .coverage-summary { background: var(--accent-glow); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; margin-top: 14px; font-size: 0.82rem; color: var(--text2); }
+
+        /* SEVERITY CARD */
+        .card-severity { border-top: 2px solid #f44336; }
+        .severity-item { border: 1px solid var(--border2); border-radius: 8px; padding: 12px 14px; margin-bottom: 8px; }
+        .severity-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .severity-title { font-size: 0.86rem; font-weight: 600; color: var(--text); }
+        .severity-badges { display: flex; gap: 6px; }
+        .sev-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; font-family: 'Space Mono', monospace; }
+        .sev-critical { background: rgba(244,67,54,0.15); color: #f44336; }
+        .sev-high { background: rgba(255,87,34,0.15); color: #ff5722; }
+        .sev-medium { background: rgba(255,152,0,0.15); color: #ff9800; }
+        .sev-low { background: rgba(76,175,80,0.15); color: var(--green); }
+        .pri-p1 { background: rgba(244,67,54,0.15); color: #f44336; }
+        .pri-p2 { background: rgba(255,152,0,0.15); color: #ff9800; }
+        .pri-p3 { background: rgba(76,175,80,0.15); color: var(--green); }
+        .severity-reason { font-size: 0.8rem; color: var(--text2); line-height: 1.5; }
+
+        /* JIRA CARD */
+        .card-jira { border-top: 2px solid #2196f3; }
+        .jira-field { display: flex; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border2); font-size: 0.82rem; }
+        .jira-field:last-child { border-bottom: none; }
+        .jira-key { color: var(--text2); min-width: 120px; flex-shrink: 0; font-weight: 600; }
+        .jira-val { color: var(--text); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+
+        /* REGRESSION CARD */
+        .card-regression { border-top: 2px solid #ff5722; }
+        .regression-section { margin-bottom: 16px; }
+        .regression-section-title { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px; font-family: 'Space Mono', monospace; }
+        .regression-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border2); font-size: 0.82rem; }
+        .regression-item:last-child { border-bottom: none; }
+        .regression-num { color: var(--accent); font-family: 'Space Mono', monospace; font-weight: 700; flex-shrink: 0; }
+        .regression-content { color: var(--text2); line-height: 1.5; }
+        .regression-content strong { color: var(--text); }
+
+        /* GENERIC CARD for analysis, strategy, scenarios */
+        .card-analysis { border-top: 2px solid #607d8b; }
+        .card-strategy { border-top: 2px solid #8bc34a; }
+        .card-scenarios { border-top: 2px solid #ffc107; }
+        .generic-body { color: var(--text2); font-size: 0.88rem; line-height: 1.9; white-space: pre-wrap; word-break: break-word; }
+
+        /* SECTION HEADERS inside generic cards */
+        .section-divider { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--accent); font-family: 'Space Mono', monospace; margin: 14px 0 8px; }
     </style>
 </head>
 <body>
-    <header>
-        <h1>🔍 ClarifyQA</h1>
-        <p>AI Reasoning Agent for QA Engineers — Detect requirement gaps before testing begins</p>
-    </header>
 
-    <div class="main-layout">
-        <div class="sidebar" id="sidebar">
-            <h3>Sections</h3>
-            <a href="#score">📊 Score</a>
-            <a href="#qa-review">🔎 QA Review</a>
-            <a href="#ambiguity">⚠️ Ambiguity</a>
-            <a href="#improved">✏️ Improvement</a>
-            <a href="#acceptance">✅ Acceptance</a>
-            <a href="#coverage">🧪 Coverage</a>
-            <a href="#severity">🐛 Severity</a>
-            <a href="#jira">📋 Jira Report</a>
-            <a href="#regression">🔄 Regression</a>
-            <a href="#analysis">📋 Analysis</a>
-            <a href="#strategy">🧠 Strategy</a>
-            <a href="#scenarios">⚙️ Scenarios</a>
-        </div>
+<nav>
+    <div class="nav-logo">
+        <div class="nav-logo-icon">🔍</div>
+        <h1>Clarify<span>QA</span></h1>
+    </div>
+    <span class="nav-tagline">Built to Break. Trained to Fix.</span>
+    <div class="nav-right">
+        <span class="nav-badge">#BUG_HUNTER</span>
+        <div class="avatar">IW</div>
+    </div>
+</nav>
 
-        <div class="content">
-            <div class="input-area">
-                <textarea id="requirement" placeholder="Paste your requirement or user story here...
-
-Example: User should be able to reset password using email."></textarea>
-                <div class="btn-row">
-                    <button onclick="analyze()" id="btn">Analyze Requirement</button>
-                    <button onclick="exportReport()" id="export-btn">⬇️ Export as PDF</button>
-                </div>
-            </div>
-
-            <div class="loading" id="loading">⚙️ ClarifyQA agents are analyzing your requirement...</div>
-            <div class="error" id="error"></div>
-            <div class="results" id="results"></div>
+<div class="layout">
+    <div class="sidebar">
+        <div class="sidebar-label">Sections</div>
+        <a href="#score" class="active"><i class="ti ti-chart-bar"></i> Score</a>
+        <a href="#qa-review"><i class="ti ti-circle-check"></i> QA Review</a>
+        <a href="#ambiguity"><i class="ti ti-alert-triangle"></i> Ambiguity</a>
+        <a href="#improved"><i class="ti ti-sparkles"></i> Improvement</a>
+        <a href="#acceptance"><i class="ti ti-clipboard-check"></i> Acceptance</a>
+        <a href="#coverage"><i class="ti ti-test-pipe"></i> Coverage</a>
+        <a href="#severity"><i class="ti ti-bug"></i> Severity</a>
+        <a href="#jira"><i class="ti ti-file-text"></i> Jira Report</a>
+        <a href="#regression"><i class="ti ti-refresh"></i> Regression</a>
+        <a href="#analysis"><i class="ti ti-search"></i> Analysis</a>
+        <a href="#strategy"><i class="ti ti-brain"></i> Strategy</a>
+        <a href="#scenarios"><i class="ti ti-settings"></i> Scenarios</a>
+        <div class="sidebar-footer">
+            <div class="sidebar-brand">#BUG_HUNTER</div>
+            <p>Powered by <strong>ClarifyQA AI</strong><br>Smarter requirements.<br>Better quality.</p>
         </div>
     </div>
 
-    <script>
-        let lastResult = null;
+    <div class="main">
+        <div class="input-label"><i class="ti ti-sparkles"></i> Describe the requirement</div>
+        <textarea id="requirement" placeholder="Paste your requirement or user story here...&#10;&#10;Example: User should be able to reset password using email."></textarea>
+        <div class="btn-row">
+            <button class="btn-primary" onclick="analyze()" id="btn"><i class="ti ti-sparkles"></i> Analyze Requirement</button>
+            <button class="btn-export" onclick="exportReport()" id="export-btn"><i class="ti ti-file-export"></i> Export as PDF</button>
+        </div>
+        <div class="loading" id="loading">
+            <div class="dots"><span></span><span></span><span></span></div>
+            ClarifyQA agents are analyzing your requirement...
+        </div>
+        <div class="error" id="error"></div>
+        <div class="results" id="results"></div>
+    </div>
+</div>
 
-        document.getElementById("requirement").addEventListener("keydown", function(e) {
-            if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                analyze();
-            }
+<script>
+let lastResult = null;
+
+document.getElementById("requirement").addEventListener("keydown", function(e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); analyze(); }
+});
+
+// ── SCORE CARD ──
+function parseScore(text) {
+    const m = text.match(/SCORE:\s*(\d+)/); return m ? parseInt(m[1]) : 0;
+}
+function getScoreColor(s) { return s >= 70 ? '#4caf50' : s >= 40 ? '#ff9800' : '#f44336'; }
+function getScoreBadge(s) {
+    if (s >= 80) return ['STRONG','#4caf50','rgba(76,175,80,0.15)'];
+    if (s >= 60) return ['MODERATE','#ff9800','rgba(255,152,0,0.15)'];
+    if (s >= 40) return ['NEEDS WORK','#ff9800','rgba(255,152,0,0.15)'];
+    return ['VERY BASIC','#f44336','rgba(244,67,54,0.15)'];
+}
+function buildScoreCard(data) {
+    const score = parseScore(data.score);
+    const color = getScoreColor(score);
+    const [bt, bc, bb] = getScoreBadge(score);
+    const circ = 2 * Math.PI * 54;
+    const offset = circ - (score / 100) * circ;
+    const lines = data.score.split('\n').filter(l => l.trim());
+    const verdict = (lines.find(l => l.includes('—')) || '').replace(/SCORE:.*—/, '').trim();
+    const dedLines = lines.filter(l => l.startsWith('-') && l.includes('—'));
+    const si = lines.findIndex(l => l.includes('SUMMARY:'));
+    const summary = si >= 0 ? (lines[si+1] || '') : '';
+    const dedsHtml = dedLines.map(line => {
+        const pts = line.match(/-\d+(?= —)/);
+        const points = pts ? pts[0] : '';
+        const rest = line.replace(/^-\s*/,'').split('—');
+        const name = rest[0]?.trim()||'';
+        const reason = rest[1]?.trim()||'';
+        const isCrit = parseInt(points) <= -15;
+        return `<div class="deduction-item">
+            <div class="deduction-icon ${isCrit?'critical':'warning'}"><i class="ti ti-${isCrit?'circle-x':'alert-triangle'}"></i></div>
+            <div class="deduction-text"><strong>${name}</strong><span>${reason}</span></div>
+            <div class="deduction-points">${points}</div>
+        </div>`;
+    }).join('');
+    return `<div class="card card-score" id="score">
+        <div class="card-header">
+            <div class="card-title" style="color:${color}"><i class="ti ti-chart-bar"></i> Requirement Readiness Score</div>
+            <span class="badge" style="color:${bc};background:${bb}">${bt}</span>
+        </div>
+        <div class="score-ring-wrap">
+            <div style="flex-shrink:0">
+                <svg width="120" height="120" class="ring-svg">
+                    <circle class="ring-bg" cx="60" cy="60" r="54"/>
+                    <circle class="ring-fill" cx="60" cy="60" r="54" stroke="${color}" stroke-dasharray="${circ}" stroke-dashoffset="${offset}"/>
+                </svg>
+                <div style="margin-top:-84px;text-align:center;position:relative;z-index:1">
+                    <div style="font-size:1.8rem;font-weight:700;color:${color};font-family:'Space Mono',monospace">${score}</div>
+                    <div style="font-size:0.72rem;color:var(--text2)">/100</div>
+                </div>
+                <div style="margin-top:32px"></div>
+            </div>
+            <div class="score-details">
+                <div class="score-number-big">${score}/100</div>
+                <div class="score-verdict">${verdict}</div>
+                <div style="font-size:0.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;font-weight:700;font-family:'Space Mono',monospace">Deductions</div>
+                ${dedsHtml}
+            </div>
+        </div>
+        ${summary ? `<div class="tip-bar"><i class="ti ti-bulb"></i> ${summary}</div>` : ''}
+    </div>`;
+}
+
+// ── QA REVIEW CARD ──
+function buildQAReview(data) {
+    const text = data.qa_review;
+    const criteria = ['User Role Clear','Goal Clear','Business Value Clear','Acceptance Criteria Present','Validation Rules Defined','Edge Cases Mentioned','Dependencies Listed','Story Testable'];
+    const itemsHtml = criteria.map(c => {
+        const regex = new RegExp(c + '[^\\n]*\\n([^\\n]+)', 'i');
+        const m = text.match(regex);
+        const explanation = m ? m[1].trim() : '';
+        const isPassing = text.match(new RegExp('\\[PASS\\].*' + c, 'i')) || text.match(new RegExp('✅.*' + c, 'i'));
+        return `<div class="qa-item">
+            <div class="qa-status ${isPassing ? 'pass' : 'fail'}"><i class="ti ti-${isPassing ? 'check' : 'x'}"></i></div>
+            <div class="qa-text"><strong>${c}</strong><span>${explanation}</span></div>
+        </div>`;
+    }).join('');
+    const scoreM = text.match(/READINESS SCORE:\s*(\d+)\s*\/\s*8/i);
+    const readScore = scoreM ? scoreM[1] : '?';
+    const isReady = text.includes('Ready for Sprint');
+    const needsRef = text.includes('Needs Refinement');
+    const verdictClass = isReady ? 'ready' : needsRef ? 'needs-refinement' : 'not-ready';
+    const verdictText = isReady ? '✅ Ready for Sprint' : needsRef ? '⚠️ Needs Refinement' : '❌ Not Ready';
+    const recsSection = text.split('QA RECOMMENDATIONS:')[1] || '';
+    const recs = recsSection.split('\n').filter(l => l.trim().startsWith('-')).map(l => l.replace(/^-\s*/,'').trim());
+    const recsHtml = recs.map(r => `<div class="rec-item"><i class="ti ti-arrow-right"></i>${r}</div>`).join('');
+    return `<div class="card card-qa" id="qa-review">
+        <div class="card-header">
+            <div class="card-title" style="color:#00e5ff"><i class="ti ti-circle-check"></i> QA Review — User Story Readiness</div>
+            <span class="badge" style="color:#00e5ff;background:rgba(0,229,255,0.1)">${readScore}/8</span>
+        </div>
+        ${itemsHtml}
+        <div class="verdict-bar ${verdictClass}">${verdictText}</div>
+        ${recsHtml ? `<div class="rec-list">${recsHtml}</div>` : ''}
+    </div>`;
+}
+
+// ── AMBIGUITY CARD ──
+function buildAmbiguity(data) {
+    const text = data.ambiguity;
+    const countM = text.match(/AMBIGUOUS WORDS FOUND:\s*(\d+)/i);
+    const count = countM ? countM[1] : '?';
+    const blocks = text.split(/\n\d+\.\s+/).slice(1);
+    const itemsHtml = blocks.map(block => {
+        const lines = block.split('\n').filter(l => l.trim());
+        const word = lines[0]?.replace(/"/g,'').trim() || '';
+        const why = lines.find(l => l.includes('Why'))?.replace(/Why it.*?:/i,'').trim() || '';
+        const replace = lines.find(l => l.includes('Should') || l.includes('replace'))?.replace(/Should be replaced with:/i,'').trim() || '';
+        return `<div class="ambiguity-item">
+            <div class="ambiguity-word"><i class="ti ti-alert-triangle"></i> "${word}"</div>
+            <div class="ambiguity-row"><span class="ambiguity-label">Why unclear:</span><span class="ambiguity-val">${why}</span></div>
+            <div class="ambiguity-row"><span class="ambiguity-label">Replace with:</span><span class="ambiguity-replace">${replace}</span></div>
+        </div>`;
+    }).join('');
+    return `<div class="card card-ambiguity" id="ambiguity">
+        <div class="card-header">
+            <div class="card-title" style="color:#ff9800"><i class="ti ti-alert-triangle"></i> Ambiguity Detector</div>
+            <span class="badge" style="color:#ff9800;background:rgba(255,152,0,0.12)">${count} FOUND</span>
+        </div>
+        ${itemsHtml || `<div class="generic-body">${text}</div>`}
+    </div>`;
+}
+
+// ── IMPROVED CARD ──
+function buildImproved(data) {
+    const text = data.improved;
+    const beforeM = text.match(/BEFORE.*?:\s*\n"?([\s\S]*?)"?\n\nISSUES/i);
+    const before = beforeM ? beforeM[1].trim() : '';
+    const issuesM = text.match(/ISSUES FOUND:\s*\n([\s\S]*?)\n\nAFTER/i);
+    const issues = issuesM ? issuesM[1].split('\n').filter(l => l.trim().startsWith('-')).map(l => l.replace(/^-\s*/,'')) : [];
+    const afterM = text.match(/AFTER.*?:\s*\n"?([\s\S]*?)"?\n\nIMPROVEMENTS/i);
+    const after = afterM ? afterM[1].trim() : '';
+    const imprM = text.match(/IMPROVEMENTS MADE:\s*\n([\s\S]*?)$/i);
+    const improvements = imprM ? imprM[1].split('\n').filter(l => l.trim().startsWith('-')).map(l => l.replace(/^-\s*/,'')) : [];
+
+    const issuesHtml = issues.map(i => `<div class="issue-item"><i class="ti ti-x"></i>${i}</div>`).join('');
+    const imprHtml = improvements.map(i => `<div class="improvement-item"><i class="ti ti-check"></i>${i}</div>`).join('');
+
+    return `<div class="card card-improved" id="improved">
+        <div class="card-header">
+            <div class="card-title" style="color:#ce93d8"><i class="ti ti-sparkles"></i> Before vs After Improvement</div>
+        </div>
+        <div class="before-after-wrap">
+            <div class="before-box">
+                <div class="box-label before">Before</div>
+                <div class="box-content">${before || text}</div>
+                ${issuesHtml ? `<div class="issues-list">${issuesHtml}</div>` : ''}
+            </div>
+            <div class="after-box">
+                <div class="box-label after">After</div>
+                <div class="box-content">${after}</div>
+                ${imprHtml ? `<div class="improvements-list">${imprHtml}</div>` : ''}
+            </div>
+        </div>
+    </div>`;
+}
+
+// ── ACCEPTANCE CARD ──
+function buildAcceptance(data) {
+    const text = data.acceptance;
+    const blocks = text.split(/\n(?=AC-\d+)/);
+    const itemsHtml = blocks.filter(b => b.trim().startsWith('AC-')).map(block => {
+        const lines = block.split('\n').filter(l => l.trim());
+        const idLine = lines[0] || '';
+        const idM = idLine.match(/AC-(\d+):(.*)/);
+        const id = idM ? `AC-${idM[1]}` : '';
+        const title = idM ? idM[2].trim() : idLine;
+        const given = lines.find(l => /^Given:/i.test(l))?.replace(/^Given:\s*/i,'') || '';
+        const when = lines.find(l => /^When:/i.test(l))?.replace(/^When:\s*/i,'') || '';
+        const then = lines.find(l => /^Then:/i.test(l))?.replace(/^Then:\s*/i,'') || '';
+        return `<div class="ac-item">
+            <div class="ac-id">${id}</div>
+            <div class="ac-title">${title}</div>
+            ${given ? `<div class="gwt-row"><span class="gwt-label given">GIVEN</span><span class="gwt-val">${given}</span></div>` : ''}
+            ${when ? `<div class="gwt-row"><span class="gwt-label when">WHEN</span><span class="gwt-val">${when}</span></div>` : ''}
+            ${then ? `<div class="gwt-row"><span class="gwt-label then">THEN</span><span class="gwt-val">${then}</span></div>` : ''}
+        </div>`;
+    }).join('');
+    return `<div class="card card-acceptance" id="acceptance">
+        <div class="card-header">
+            <div class="card-title" style="color:#4caf50"><i class="ti ti-clipboard-check"></i> Acceptance Criteria</div>
+        </div>
+        ${itemsHtml || `<div class="generic-body">${text}</div>`}
+    </div>`;
+}
+
+// ── COVERAGE CARD ──
+function buildCoverage(data) {
+    const text = data.coverage;
+    const types = ['Positive Testing','Negative Testing','Boundary Testing','Security Testing','Regression Testing','Usability Testing','Performance Testing'];
+    const itemsHtml = types.map(t => {
+        const regex = new RegExp('([✅⚠️❌])\\s*' + t + '[^\\n]*\\n([^\\n]+)', 'i');
+        const m = text.match(regex);
+        const icon = m ? m[1] : '';
+        const desc = m ? m[2].trim() : '';
+        const status = icon === '✅' ? 'covered' : icon === '⚠️' ? 'partial' : 'missing';
+        const iconName = status === 'covered' ? 'check' : status === 'partial' ? 'minus' : 'x';
+        return `<div class="coverage-item">
+            <div class="coverage-icon ${status}"><i class="ti ti-${iconName}"></i></div>
+            <div class="coverage-text"><strong>${t}</strong><span>${desc}</span></div>
+        </div>`;
+    }).join('');
+    const summaryM = text.match(/COVERAGE SUMMARY:\s*\n([\s\S]*?)(?:Recommendation:|$)/i);
+    const summary = summaryM ? summaryM[1].trim() : '';
+    const recM = text.match(/Recommendation:\s*([^\n]+)/i);
+    const rec = recM ? recM[1].trim() : '';
+    return `<div class="card card-coverage" id="coverage">
+        <div class="card-header">
+            <div class="card-title" style="color:#e91e63"><i class="ti ti-test-pipe"></i> Test Coverage Checklist</div>
+        </div>
+        ${itemsHtml}
+        ${rec ? `<div class="coverage-summary"><strong>Recommendation:</strong> ${rec}</div>` : ''}
+    </div>`;
+}
+
+// ── SEVERITY CARD ──
+function buildSeverity(data) {
+    const text = data.severity;
+    const blocks = text.split(/\n(?=Bug \d+:)/i);
+    const itemsHtml = blocks.filter(b => /^Bug \d+:/i.test(b.trim())).map(block => {
+        const lines = block.split('\n').filter(l => l.trim());
+        const titleM = lines[0]?.match(/Bug \d+:\s*(.*)/i);
+        const title = titleM ? titleM[1] : lines[0];
+        const sevM = block.match(/Severity:\s*(\w+)/i);
+        const priM = block.match(/Priority:\s*(P\d)/i);
+        const reasonM = block.match(/Reason:\s*([^\n]+)/i);
+        const sev = sevM ? sevM[1] : '';
+        const pri = priM ? priM[1] : '';
+        const reason = reasonM ? reasonM[1].trim() : '';
+        const sevClass = `sev-${sev.toLowerCase()}`;
+        const priClass = `pri-${pri.toLowerCase()}`;
+        return `<div class="severity-item">
+            <div class="severity-header">
+                <div class="severity-title">${title}</div>
+                <div class="severity-badges">
+                    ${sev ? `<span class="sev-badge ${sevClass}">${sev}</span>` : ''}
+                    ${pri ? `<span class="sev-badge ${priClass}">${pri}</span>` : ''}
+                </div>
+            </div>
+            ${reason ? `<div class="severity-reason">${reason}</div>` : ''}
+        </div>`;
+    }).join('');
+    return `<div class="card card-severity" id="severity">
+        <div class="card-header">
+            <div class="card-title" style="color:#f44336"><i class="ti ti-bug"></i> Bug Severity & Priority</div>
+        </div>
+        ${itemsHtml || `<div class="generic-body">${text}</div>`}
+    </div>`;
+}
+
+// ── JIRA CARD ──
+function buildJira(data) {
+    const text = data.jira;
+    const fields = ['Project','Issue Type','Summary','Labels','Component','Fix Version','Priority','Severity','Assignee','Reporter'];
+    const fieldsHtml = fields.map(f => {
+        const m = text.match(new RegExp(f + ':\\s*([^\\n]+)', 'i'));
+        if (!m) return '';
+        return `<div class="jira-field"><span class="jira-key">${f}</span><span class="jira-val">${m[1].trim()}</span></div>`;
+    }).join('');
+    const sections = ['Description','Preconditions','Steps to Reproduce','Expected Result','Actual Result','Impact'];
+    const sectionsHtml = sections.map(s => {
+        const m = text.match(new RegExp(s + ':\\s*\\n([\\s\\S]*?)(?=\\n[A-Z][a-z]+:|$)', 'i'));
+        if (!m) return '';
+        return `<div class="jira-field" style="align-items:flex-start"><span class="jira-key">${s}</span><span class="jira-val">${m[1].trim()}</span></div>`;
+    }).join('');
+    return `<div class="card card-jira" id="jira">
+        <div class="card-header">
+            <div class="card-title" style="color:#2196f3"><i class="ti ti-file-text"></i> Jira Bug Report</div>
+            <span class="badge" style="color:#2196f3;background:rgba(33,150,243,0.12)">READY TO PASTE</span>
+        </div>
+        ${fieldsHtml}
+        ${sectionsHtml}
+    </div>`;
+}
+
+// ── REGRESSION CARD ──
+function buildRegression(data) {
+    const text = data.regression;
+    const sections = [
+        { key: 'Primary Impact Areas', label: 'Primary Impact Areas (Must Retest)', color: '#f44336' },
+        { key: 'Secondary Impact Areas', label: 'Secondary Impact Areas (Should Retest)', color: '#ff9800' },
+        { key: 'Low Risk Areas', label: 'Low Risk Areas (Optional)', color: '#4caf50' }
+    ];
+    const sectionsHtml = sections.map(s => {
+        const m = text.match(new RegExp(s.key + '[^:]*:\\s*\\n([\\s\\S]*?)(?=\\n[A-Z]|REGRESSION TEST|$)', 'i'));
+        if (!m) return '';
+        const items = m[1].split('\n').filter(l => /^\d+\./.test(l.trim()));
+        if (!items.length) return '';
+        const itemsHtml = items.map(item => {
+            const parts = item.replace(/^\d+\.\s*/,'').split('—');
+            return `<div class="regression-item">
+                <div class="regression-num">→</div>
+                <div class="regression-content"><strong>${parts[0]?.trim()||''}</strong>${parts[1] ? ' — ' + parts[1].trim() : ''}</div>
+            </div>`;
+        }).join('');
+        return `<div class="regression-section">
+            <div class="regression-section-title" style="color:${s.color}">${s.label}</div>
+            ${itemsHtml}
+        </div>`;
+    }).join('');
+    const recM = text.match(/RECOMMENDATION:\s*\n([^\n]+)/i);
+    const rec = recM ? recM[1].trim() : '';
+    return `<div class="card card-regression" id="regression">
+        <div class="card-header">
+            <div class="card-title" style="color:#ff5722"><i class="ti ti-refresh"></i> Regression Impact Analysis</div>
+        </div>
+        ${sectionsHtml || `<div class="generic-body">${text}</div>`}
+        ${rec ? `<div class="tip-bar"><i class="ti ti-bulb"></i> ${rec}</div>` : ''}
+    </div>`;
+}
+
+// ── GENERIC CARDS ──
+function buildGeneric(id, icon, title, content, cardClass, color) {
+    return `<div class="card ${cardClass}" id="${id}">
+        <div class="card-header">
+            <div class="card-title" style="color:${color}"><i class="ti ${icon}"></i> ${title}</div>
+        </div>
+        <div class="generic-body">${content}</div>
+    </div>`;
+}
+
+// ── MAIN ANALYZE ──
+async function analyze() {
+    const requirement = document.getElementById("requirement").value.trim();
+    if (!requirement) { alert("Please enter a requirement."); return; }
+    document.getElementById("btn").disabled = true;
+    document.getElementById("export-btn").classList.remove("visible");
+    document.getElementById("loading").classList.add("visible");
+    document.getElementById("results").innerHTML = "";
+    document.getElementById("error").classList.remove("visible");
+    try {
+        const response = await fetch("/analyze", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ requirement })
         });
-
-        async function analyze() {
-            const requirement = document.getElementById("requirement").value.trim();
-            if (!requirement) { alert("Please enter a requirement."); return; }
-
-            document.getElementById("btn").disabled = true;
-            document.getElementById("export-btn").style.display = "none";
-            document.getElementById("loading").style.display = "block";
-            document.getElementById("results").innerHTML = "";
-            document.getElementById("error").style.display = "none";
-            document.getElementById("sidebar").style.display = "none";
-
-            try {
-                const response = await fetch("/analyze", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ requirement })
-                });
-
-                const data = await response.json();
-
-                if (data.error) {
-                    document.getElementById("error").textContent = data.error;
-                    document.getElementById("error").style.display = "block";
-                } else {
-                    lastResult = data;
-                    document.getElementById("export-btn").style.display = "block";
-                    document.getElementById("sidebar").style.display = "block";
-                    document.getElementById("results").innerHTML = `
-                        <div class="card score-card" id="score">
-                            <h2>📊 Requirement Readiness Score</h2>
-                            <pre>${data.score}</pre>
-                        </div>
-                        <div class="card qa-review-card" id="qa-review">
-                            <h2>🔎 QA Review — User Story Readiness</h2>
-                            <pre>${data.qa_review}</pre>
-                        </div>
-                        <div class="card ambiguity-card" id="ambiguity">
-                            <h2>⚠️ Ambiguity Detector</h2>
-                            <pre>${data.ambiguity}</pre>
-                        </div>
-                        <div class="card improved-card" id="improved">
-                            <h2>✏️ Before vs After Improvement</h2>
-                            <pre>${data.improved}</pre>
-                        </div>
-                        <div class="card acceptance-card" id="acceptance">
-                            <h2>✅ Acceptance Criteria</h2>
-                            <pre>${data.acceptance}</pre>
-                        </div>
-                        <div class="card coverage-card" id="coverage">
-                            <h2>🧪 Test Coverage Checklist</h2>
-                            <pre>${data.coverage}</pre>
-                        </div>
-                        <div class="card severity-card" id="severity">
-                            <h2>🐛 Bug Severity & Priority</h2>
-                            <pre>${data.severity}</pre>
-                        </div>
-                        <div class="card jira-card" id="jira">
-                            <h2>📋 Jira Bug Report</h2>
-                            <pre>${data.jira}</pre>
-                        </div>
-                        <div class="card regression-card" id="regression">
-                            <h2>🔄 Regression Impact Analysis</h2>
-                            <pre>${data.regression}</pre>
-                        </div>
-                        <div class="card" id="analysis">
-                            <h2>📋 Requirement Analysis</h2>
-                            <pre>${data.analysis}</pre>
-                        </div>
-                        <div class="card" id="strategy">
-                            <h2>🧠 Strategy & Risk Plan</h2>
-                            <pre>${data.strategy}</pre>
-                        </div>
-                        <div class="card" id="scenarios">
-                            <h2>⚙️ Test Scenarios & Bug Report</h2>
-                            <pre>${data.output}</pre>
-                        </div>
-                    `;
-
-                    updateActiveSidebarLink();
-                }
-            } catch (err) {
-                document.getElementById("error").textContent = "Something went wrong. Please try again.";
-                document.getElementById("error").style.display = "block";
-            } finally {
-                document.getElementById("btn").disabled = false;
-                document.getElementById("loading").style.display = "none";
-            }
-        }
-
-        function updateActiveSidebarLink() {
-            const links = document.querySelectorAll(".sidebar a");
+        const data = await response.json();
+        if (data.error) {
+            document.getElementById("error").textContent = data.error;
+            document.getElementById("error").classList.add("visible");
+        } else {
+            lastResult = data;
+            document.getElementById("export-btn").classList.add("visible");
+            document.getElementById("results").innerHTML =
+                buildScoreCard(data) +
+                buildQAReview(data) +
+                buildAmbiguity(data) +
+                buildImproved(data) +
+                buildAcceptance(data) +
+                buildCoverage(data) +
+                buildSeverity(data) +
+                buildJira(data) +
+                buildRegression(data) +
+                buildGeneric('analysis','ti-search','Requirement Analysis',data.analysis,'card-analysis','#90a4ae') +
+                buildGeneric('strategy','ti-brain','Strategy & Risk Plan',data.strategy,'card-strategy','#aed581') +
+                buildGeneric('scenarios','ti-settings','Test Scenarios & Bug Report',data.output,'card-scenarios','#ffd54f');
             window.addEventListener("scroll", () => {
                 let current = "";
                 document.querySelectorAll(".card").forEach(card => {
-                    const top = card.getBoundingClientRect().top;
-                    if (top < 200) current = card.id;
+                    if (card.getBoundingClientRect().top < 200) current = card.id;
                 });
-                links.forEach(link => {
+                document.querySelectorAll(".sidebar a").forEach(link => {
                     link.classList.remove("active");
-                    if (link.getAttribute("href") === "#" + current) {
-                        link.classList.add("active");
-                    }
+                    if (link.getAttribute("href") === "#" + current) link.classList.add("active");
                 });
             });
         }
+    } catch(err) {
+        document.getElementById("error").textContent = "Something went wrong. Please try again.";
+        document.getElementById("error").classList.add("visible");
+    } finally {
+        document.getElementById("btn").disabled = false;
+        document.getElementById("loading").classList.remove("visible");
+    }
+}
 
-        async function exportReport() {
-            if (!lastResult) return;
-            const response = await fetch("/export", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(lastResult)
-            });
-            const blob = await response.blob();
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "clarifyqa-report.pdf";
-            a.click();
-            window.URL.revokeObjectURL(url);
-        }
-    </script>
+async function exportReport() {
+    if (!lastResult) return;
+    const response = await fetch("/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(lastResult)
+    });
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "clarifyqa-report.pdf";
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+</script>
 </body>
 </html>
+<style>
+i.ti { font-style: normal; font-size: inherit; display: inline-flex; align-items: center; justify-content: center; }
+i.ti::before { font-family: monospace; font-size: 1em; }
+i.ti-alert-triangle::before { content: '⚠'; }
+i.ti-arrow-right::before { content: '›'; font-size: 1.3em; }
+i.ti-brain::before { content: '◈'; }
+i.ti-bug::before { content: '⬡'; }
+i.ti-bulb::before { content: '◉'; }
+i.ti-chart-bar::before { content: '▦'; }
+i.ti-check::before { content: '✓'; }
+i.ti-circle-check::before { content: '◎'; }
+i.ti-clipboard-check::before { content: '◧'; }
+i.ti-file-export::before { content: '⊡'; }
+i.ti-file-text::before { content: '◫'; }
+i.ti-refresh::before { content: '↻'; }
+i.ti-search::before { content: '⊙'; }
+i.ti-settings::before { content: '⚙'; }
+i.ti-sparkles::before { content: '✦'; }
+i.ti-test-pipe::before { content: '⊢'; }
+i.ti-x::before { content: '✕'; }
+i.ti-help::before { content: '?'; }
+i.ti-sun::before { content: '☀'; }
+i.ti-circle-x::before { content: '✕'; }
+</style>

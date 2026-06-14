@@ -29,6 +29,7 @@ def generate_output(requirement: str, strategy: str) -> str:
     1. Test Scenarios - Positive, negative, edge, boundary, and security scenarios
     2. Bug Report Template - Professional bug report with title, steps to reproduce,
        expected result, actual result, severity, priority, and impact
+    3. Do not use markdown headers with # symbols. Use plain text section headers instead.
     
     Be thorough and practical."""
 
